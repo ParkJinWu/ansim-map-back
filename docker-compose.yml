@@ -1,0 +1,18 @@
+services:
+  ansim-db:
+    image: postgis/postgis:15-3.3 # PostgreSQL 15 버전 + PostGIS 포함 이미지
+    container_name: ansim-db
+    environment:
+      POSTGRES_USER: ansim
+      POSTGRES_PASSWORD: ansim
+      POSTGRES_DB: ansim_db
+      TZ: Asia/Seoul
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data # 데이터 영구 저장을 위한 볼륨 설정
+    restart: always
+
+networks:
+  default:
+    name: ansim-network
