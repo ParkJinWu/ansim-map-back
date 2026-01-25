@@ -1,0 +1,27 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: ansim-map
+
+  # 1. DB ??
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/ansim_db
+    username: ansim
+    password: ansim
+
+  # 2. JPA & PostGIS ??
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+
+# 3. Security ??
+jwt:
+  secret: "+jYRgNf6H9Ns1nB5BygUJMKR+q/QAsaU5zrsOZOXnu/kAGfCdQxUyaYV7krwCKeh5FPrcIvOycZDJb5zQsGktg=="
+  token-validity-in-seconds: 86400
