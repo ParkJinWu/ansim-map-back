@@ -56,4 +56,9 @@ public class JwtTokenProvider {
             return false;
         }
     }
+
+    public String createRefreshToken(String email) {
+        // 만료 시간이 긴 리프레시 토큰 생성 로직 호출
+        return jwtUtils.generateRefreshToken(email);
+    }
 }

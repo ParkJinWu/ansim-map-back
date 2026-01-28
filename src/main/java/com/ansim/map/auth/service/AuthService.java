@@ -7,9 +7,12 @@ import com.ansim.map.enums.Role;
 import com.ansim.map.member.repository.MemberRepository;
 import com.ansim.map.global.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -18,7 +21,8 @@ public class AuthService {
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtTokenProvider jwtTokenProvider; // JwtUtils 대신 Provider 사용 가능
+    private final JwtTokenProvider jwtTokenProvider;
+    private final RedisTemplate<String, String> redisTemplate;
 
     /**
      * 회원가입
@@ -44,20 +48,41 @@ public class AuthService {
     /**
      * 로그인
      */
+    @Transactional // Redis 저장이 포함되므로 Transactional 권장
     public TokenResponse login(AuthDto request) {
-        // 1. 사용자 존재 여부 확인
         Member member = memberRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("이메일을 확인해주세요."));
 
-        // 2. 비밀번호 일치 여부 확인
         if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
             throw new RuntimeException("비밀번호가 일치하지 않습니다.");
         }
 
-        // 3. 토큰 발급 (Provider 활용)
-        // 만약 jwtTokenProvider에 Authentication 객체가 필요하다면 로직이 살짝 달라질 수 있습니다.
-        String accessToken = jwtTokenProvider.createToken(member.getEmail(), String.valueOf(member.getRole()));
+        String email = member.getEmail();
+        String role = String.valueOf(member.getRole());
 
-        return new TokenResponse(accessToken, "Bearer");
+        // 1. AccessToken 생성
+        String accessToken = jwtTokenProvider.createToken(email, role);
+
+        // 2. RefreshToken 생성
+        String refreshToken = jwtTokenProvider.createRefreshToken(email);
+
+        // 3. Redis에 RefreshToken 저장 (Key: "RT:이메일", Value: 토큰값)
+        // 7일간 유지되도록 설정
+        redisTemplate.opsForValue().set(
+                "RT:" + email,
+                refreshToken,
+                7, TimeUnit.DAYS
+        );
+
+        return new TokenResponse(accessToken, refreshToken, "Bearer");
+    }
+
+    /**
+     * 로그아웃
+     */
+    @Transactional
+    public void logout(String email) {
+        // Redis에서 해당 이메일로 저장된 RefreshToken 삭제
+        redisTemplate.delete("RT:" + email);
     }
 }
