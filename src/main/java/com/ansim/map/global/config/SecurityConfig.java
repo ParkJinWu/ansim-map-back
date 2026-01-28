@@ -1,4 +1,4 @@
-package com.ansim.map.global.security;
+package com.ansim.map.global.config;
 
 import com.ansim.map.global.security.jwt.JwtAccessDeniedHandler;
 import com.ansim.map.global.security.jwt.JwtAuthenticationEntryPoint;

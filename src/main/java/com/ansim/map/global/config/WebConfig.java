@@ -1,4 +1,4 @@
-package com.ansim.map.global.security;
+package com.ansim.map.global.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
