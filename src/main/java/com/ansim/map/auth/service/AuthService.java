@@ -4,6 +4,8 @@ import com.ansim.map.auth.dto.AuthDto;
 import com.ansim.map.auth.dto.TokenResponse;
 import com.ansim.map.domain.entity.Member;
 import com.ansim.map.enums.Role;
+import com.ansim.map.global.exception.AnsimException;
+import com.ansim.map.global.exception.ErrorCode;
 import com.ansim.map.member.repository.MemberRepository;
 import com.ansim.map.global.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -29,17 +31,15 @@ public class AuthService {
      */
     @Transactional
     public void signUp(AuthDto request) {
-        // 1. 중복 가입 방지
         if (memberRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("이미 존재하는 이메일입니다.");
+            throw new AnsimException(ErrorCode.EMAIL_DUPLICATION);
         }
 
-        // 2. 패스워드 암호화 후 DB 저장
         Member member = Member.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .name(request.getName())  // name 추가
-                .role(Role.USER)  // Role enum 사용
+                .name(request.getName())
+                .role(Role.USER)
                 .build();
 
         memberRepository.save(member);
@@ -48,13 +48,13 @@ public class AuthService {
     /**
      * 로그인
      */
-    @Transactional // Redis 저장이 포함되므로 Transactional 권장
+    @Transactional
     public TokenResponse login(AuthDto request) {
         Member member = memberRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("이메일을 확인해주세요."));
+                .orElseThrow(() -> new AnsimException(ErrorCode.LOGIN_FAILED));
 
         if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
-            throw new RuntimeException("비밀번호가 일치하지 않습니다.");
+            throw new AnsimException(ErrorCode.LOGIN_FAILED);
         }
 
         String email = member.getEmail();
@@ -77,12 +77,12 @@ public class AuthService {
         return new TokenResponse(accessToken, refreshToken, "Bearer");
     }
 
-    /**
-     * 로그아웃
-     */
     @Transactional
     public void logout(String email) {
-        // Redis에서 해당 이메일로 저장된 RefreshToken 삭제
+        // 만약 이메일이 비어있거나 잘못된 경우에 대한 예외처리를 추가할 수도 있습니다.
+        if (email == null) {
+            throw new AnsimException(ErrorCode.INVALID_TOKEN);
+        }
         redisTemplate.delete("RT:" + email);
     }
 }

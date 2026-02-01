@@ -3,6 +3,10 @@ package com.ansim.map.auth.controller;
 import com.ansim.map.auth.dto.AuthDto;
 import com.ansim.map.auth.dto.TokenResponse;
 import com.ansim.map.auth.service.AuthService;
+import com.ansim.map.global.common.ApiResponse;
+import com.ansim.map.global.common.LoginUser;
+import com.ansim.map.global.exception.AnsimException;
+import com.ansim.map.global.exception.ErrorCode;
 import com.ansim.map.global.security.jwt.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,13 +25,13 @@ public class AuthController {
     private final JwtUtils jwtUtils;
 
     @PostMapping("/signup")
-    public ResponseEntity<String> signUp(@RequestBody AuthDto request) {
+    public ResponseEntity<ApiResponse<String>> signUp(@RequestBody AuthDto request) {
         authService.signUp(request);
-        return ResponseEntity.ok("회원가입이 완료되었습니다.");
+        return ResponseEntity.ok(ApiResponse.success("회원가입이 완료되었습니다."));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(@RequestBody AuthDto request) {
+    public ResponseEntity<ApiResponse<TokenResponse>> login(@RequestBody AuthDto request) {
         // 1. 서비스에서 토큰 뭉치(Access, Refresh)를 받아옴
         TokenResponse tokenResponse = authService.login(request);
 
@@ -43,21 +47,16 @@ public class AuthController {
         // 3. 헤더에는 쿠키를 넣고, 바디에는 액세스 토큰 정보만 반환
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
-                .body(tokenResponse);
+                .body(ApiResponse.success(tokenResponse));
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestHeader(value = "Authorization", required = false) String authHeader) {
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String accessToken = authHeader.substring(7).trim();
+    public ResponseEntity<Void> logout(@LoginUser String email) {
+        // 1. 이미 필터에서 검증이 끝났고, Resolver가 이메일을 뽑아서 넣어줌
+        // 2. 만약 인증되지 않은 사용자가 접근하면 Resolver 단계에서 거를 수 있음
 
-            try {
-                String email = jwtUtils.getEmail(accessToken);
-                authService.logout(email);
-            } catch (Exception e) {
-                log.error("====> 파싱 실패 원인: {}", e.getMessage());
-            }
-        }
+        log.info("@@ :" + email);
+        authService.logout(email);
         return ResponseEntity.noContent().build();
     }
 }
