@@ -25,3 +25,8 @@ spring:
 jwt:
   secret: "+jYRgNf6H9Ns1nB5BygUJMKR+q/QAsaU5zrsOZOXnu/kAGfCdQxUyaYV7krwCKeh5FPrcIvOycZDJb5zQsGktg=="
   token-validity-in-seconds: 86400
+
+tmap:
+  api:
+    app-key: "hTL4FQWtDbaAZAAY4Ftz64jJeaaC1Gp19b6fwBnZ"
+    base-url: "https://apis.openapi.sk.com/transit/routes"
