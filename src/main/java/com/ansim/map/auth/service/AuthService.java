@@ -74,7 +74,7 @@ public class AuthService {
                 7, TimeUnit.DAYS
         );
 
-        return new TokenResponse(accessToken, refreshToken, "Bearer");
+        return TokenResponse.from(accessToken, refreshToken, "Bearer", member);
     }
 
     @Transactional
