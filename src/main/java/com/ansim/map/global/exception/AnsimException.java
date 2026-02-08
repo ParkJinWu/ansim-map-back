@@ -15,4 +15,9 @@ public class AnsimException extends RuntimeException {
         super(message);
         this.errorCode = errorCode;
     }
+
+    public AnsimException(ErrorCode errorCode, Object detail) {
+        super(errorCode.getMessage() + " : " + detail);
+        this.errorCode = errorCode;
+    }
 }

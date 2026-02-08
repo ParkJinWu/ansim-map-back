@@ -19,4 +19,9 @@ public class ApiResponse<T> {
     public static <T> ApiResponse<T> success(String message) {
         return new ApiResponse<>(true, message, null);
     }
+
+    //  메시지와 데이터를 동시에 담아 보낼 때
+    public static <T> ApiResponse<T> success(String message, T data) {
+        return new ApiResponse<>(true, message, data);
+    }
 }
