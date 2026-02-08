@@ -25,8 +25,22 @@ public class Member {
     @Column(nullable = false)
     private String name; // 이름
 
-    // 권한 관리를 위한 내부 Enum
+    //  프로필 이미지 URL (S3 경로 저장용)
+    @Column(nullable = false)
+    @Builder.Default
+    private String profileImageUrl = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png";
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
+
+
+    public void updateProfile(String newName, String newProfileImageUrl) {
+        if (newName != null && !newName.isBlank()) {
+            this.name = newName;
+        }
+        if (newProfileImageUrl != null) {
+            this.profileImageUrl = newProfileImageUrl;
+        }
+    }
 }
