@@ -5,15 +5,16 @@ import com.ansim.map.auth.dto.TokenResponse;
 import com.ansim.map.auth.service.AuthService;
 import com.ansim.map.global.common.ApiResponse;
 import com.ansim.map.global.common.LoginUser;
-import com.ansim.map.global.exception.AnsimException;
-import com.ansim.map.global.exception.ErrorCode;
 import com.ansim.map.global.security.jwt.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("auth")
@@ -51,12 +52,8 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@LoginUser String email) {
-        // 1. 이미 필터에서 검증이 끝났고, Resolver가 이메일을 뽑아서 넣어줌
-        // 2. 만약 인증되지 않은 사용자가 접근하면 Resolver 단계에서 거를 수 있음
-
-        log.info("@@ :" + email);
-        authService.logout(email);
+    public ResponseEntity<Void> logout(@LoginUser Long memberId) {
+        authService.logout(memberId);
         return ResponseEntity.noContent().build();
     }
 }

@@ -58,18 +58,15 @@ public class AuthService {
         }
 
         String email = member.getEmail();
+        Long memberId = member.getId();
         String role = String.valueOf(member.getRole());
 
-        // 1. AccessToken 생성
-        String accessToken = jwtTokenProvider.createToken(email, role);
+        String accessToken = jwtTokenProvider.createToken(email, memberId, role);
 
-        // 2. RefreshToken 생성
         String refreshToken = jwtTokenProvider.createRefreshToken(email);
 
-        // 3. Redis에 RefreshToken 저장 (Key: "RT:이메일", Value: 토큰값)
-        // 7일간 유지되도록 설정
         redisTemplate.opsForValue().set(
-                "RT:" + email,
+                "RT:" + memberId,
                 refreshToken,
                 7, TimeUnit.DAYS
         );
@@ -78,11 +75,10 @@ public class AuthService {
     }
 
     @Transactional
-    public void logout(String email) {
-        // 만약 이메일이 비어있거나 잘못된 경우에 대한 예외처리를 추가할 수도 있습니다.
-        if (email == null) {
+    public void logout(Long memberId) {
+        if (memberId == null) {
             throw new AnsimException(ErrorCode.INVALID_TOKEN);
         }
-        redisTemplate.delete("RT:" + email);
+        redisTemplate.delete("RT:" + memberId);
     }
 }
