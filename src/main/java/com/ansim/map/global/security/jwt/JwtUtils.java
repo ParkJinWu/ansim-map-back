@@ -30,12 +30,13 @@ public class JwtUtils {
     /**
      * Access Token 생성 (짧은 수명 + 권한 정보 포함)
      */
-    public String generateToken(String email, String role) {
+    public String generateToken(String email, Long id, String role) {
         long now = (new Date()).getTime();
         Date validity = new Date(now + this.accessTokenValidityInMilliseconds);
 
         return Jwts.builder()
                 .setSubject(email)
+                .claim("id", id)
                 .claim("auth", role)
                 .setExpiration(validity)
                 .signWith(key, SignatureAlgorithm.HS256)

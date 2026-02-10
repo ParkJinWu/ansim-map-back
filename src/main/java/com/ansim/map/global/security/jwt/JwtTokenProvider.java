@@ -22,21 +22,14 @@ public class JwtTokenProvider {
 
     private final JwtUtils jwtUtils;
 
-    public String createToken(Authentication authentication) {
-        String authorities = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
-
-        return jwtUtils.generateToken(authentication.getName(), authorities);
-    }
-
-    public String createToken(String email, String role) {
-        // AuthService에서 넘겨준 email과 role을 그대로 jwtUtils에 전달합니다.
-        return jwtUtils.generateToken(email, role);
+    public String createToken(String email, Long id, String role) {
+        return jwtUtils.generateToken(email, id, role);
     }
 
     public Authentication getAuthentication(String token) {
         Claims claims = jwtUtils.getClaims(token);
+
+        Long memberId = claims.get("id", Long.class);
 
         Collection<? extends GrantedAuthority> authorities =
                 Arrays.stream(claims.get("auth").toString().split(","))
@@ -44,7 +37,13 @@ public class JwtTokenProvider {
                         .collect(Collectors.toList());
 
         UserDetails principal = new User(claims.getSubject(), "", authorities);
-        return new UsernamePasswordAuthenticationToken(principal, token, authorities);
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(principal, token, authorities);
+
+        authentication.setDetails(memberId);
+
+        return authentication;
     }
 
     public boolean validateToken(String token) {
