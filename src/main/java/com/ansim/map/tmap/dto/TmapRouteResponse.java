@@ -1,4 +1,4 @@
-package com.ansim.map.tmap;
+package com.ansim.map.tmap.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
