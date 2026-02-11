@@ -1,7 +1,8 @@
 package com.ansim.map.tmap.controller;
 
-import com.ansim.map.tmap.TmapCarRouteResponse;
-import com.ansim.map.tmap.TmapService;
+import com.ansim.map.tmap.dto.TmapCarRouteResponse;
+import com.ansim.map.tmap.dto.TmapPoiResponse;
+import com.ansim.map.tmap.service.TmapService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,10 +26,19 @@ public class TmapController {
      */
     @GetMapping("/path/car")
     public Mono<List<TmapCarRouteResponse>> getCarPath(
-            @RequestParam String sx, @RequestParam String sy,
-            @RequestParam String ex, @RequestParam String ey
+            @RequestParam String startAddr,
+            @RequestParam String endAddr
     ) {
-        log.info("🚗 [다중 경로 탐색] 최적길 & 대로길 동시 요청");
-        return tmapService.getCarRoutes(sx, sy, ex, ey);
+        log.info("[주소 기반 경로 탐색] {} -> {}", startAddr, endAddr);
+        return tmapService.getCarRoutesByAddress(startAddr, endAddr);
+    }
+
+    /**
+     * TMAP POI 검색
+     */
+    @GetMapping("/search/poi")
+    public Mono<List<TmapPoiResponse.Poi>> searchPoi(@RequestParam String keyword) {
+        log.info("🔍 [장소 검색] 키워드: {}", keyword);
+        return tmapService.searchPoi(keyword);
     }
 }
