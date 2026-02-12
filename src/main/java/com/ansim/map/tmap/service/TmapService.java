@@ -2,6 +2,7 @@ package com.ansim.map.tmap.service;
 
 import com.ansim.map.tmap.dto.TmapCarRouteResponse;
 import com.ansim.map.tmap.dto.TmapGeocodingResponse;
+import com.ansim.map.tmap.dto.TmapPoiDetailResponse;
 import com.ansim.map.tmap.dto.TmapPoiResponse;
 import com.ansim.map.tmap.enums.TmapRouteOption;
 import lombok.AllArgsConstructor;
@@ -123,6 +124,7 @@ public class TmapService {
                     return res.getSearchPoiInfo().getPois().getPoi().stream()
                             .map(poi -> {
                                 Map<String, Object> map = new HashMap<>();
+                                map.put("id", poi.getId());
                                 map.put("name", poi.getName());
                                 map.put("fullAddress", poi.getFullAddress());
                                 map.put("frontLat", poi.getFrontLat());
@@ -131,5 +133,20 @@ public class TmapService {
                             })
                             .collect(Collectors.toList());
                 });
+    }
+
+    /**
+     * POI 상세 정보 조회
+     */
+    public Mono<TmapPoiDetailResponse.PoiDetailInfo> getPoiDetail(String poiId) {
+        return tmapWebClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/tmap/pois/" + poiId)
+                        .queryParam("version", 1)
+                        .queryParam("resCoordType", "WGS84GEO")
+                        .build())
+                .retrieve()
+                .bodyToMono(TmapPoiDetailResponse.class)
+                .map(TmapPoiDetailResponse::getPoiDetailInfo);
     }
 }

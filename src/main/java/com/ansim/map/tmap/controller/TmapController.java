@@ -1,13 +1,11 @@
 package com.ansim.map.tmap.controller;
 
 import com.ansim.map.tmap.dto.TmapCarRouteResponse;
+import com.ansim.map.tmap.dto.TmapPoiDetailResponse;
 import com.ansim.map.tmap.service.TmapService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -40,5 +38,13 @@ public class TmapController {
     public Mono<List<Map<String, Object>>> searchPoi(@RequestParam String keyword) {
         log.info("🔍 [장소 검색] 키워드: {}", keyword);
         return tmapService.searchPoi(keyword);
+    }
+
+    /**
+     * TMAP POI 상세 조회
+     */
+    @GetMapping("/search/poi/{poiId}")
+    public Mono<TmapPoiDetailResponse.PoiDetailInfo> getPoiDetail(@PathVariable String poiId) {
+        return tmapService.getPoiDetail(poiId);
     }
 }

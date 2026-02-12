@@ -25,6 +25,7 @@ public class TmapPoiResponse {
     @Getter
     @NoArgsConstructor
     public static class Poi {
+        private String id;
         private String name;
         private String upperAddrName;
         private String middleAddrName;
