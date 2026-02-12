@@ -29,6 +29,9 @@ public class Favorite extends BaseTimeEntity {
 
     private String placeName; // 장소 이름
 
+    @Column(nullable = false)
+    private String poiId; // Tmap에서 제공하는 고유
+
     @Column(nullable = false, precision = 13, scale = 10)
     private BigDecimal latitude;
 

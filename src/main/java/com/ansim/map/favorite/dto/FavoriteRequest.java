@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 @Getter
 @NoArgsConstructor
 public class FavoriteRequest {
+    private String poiId;
     private String alias;
     private String addressName;
     private String placeName;

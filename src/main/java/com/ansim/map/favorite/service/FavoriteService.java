@@ -36,6 +36,7 @@ public class FavoriteService {
 
         Favorite favorite = Favorite.builder()
                 .member(member)
+                .poiId(request.getPoiId())
                 .alias(request.getAlias())
                 .addressName(request.getAddressName())
                 .placeName(request.getPlaceName())

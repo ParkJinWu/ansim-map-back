@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 @Builder
 public class FavoriteResponse {
     private Long id;
+    private String poiId;
     private String alias;
     private String addressName;
     private String placeName;
@@ -19,6 +20,7 @@ public class FavoriteResponse {
     public static FavoriteResponse from(Favorite favorite) {
         return FavoriteResponse.builder()
                 .id(favorite.getId())
+                .poiId(favorite.getPoiId())
                 .alias(favorite.getAlias())
                 .addressName(favorite.getAddressName())
                 .placeName(favorite.getPlaceName())
