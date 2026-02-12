@@ -104,17 +104,32 @@ public class TmapService {
                 });
     }
 
-    public Mono<List<TmapPoiResponse.Poi>> searchPoi(String keyword) {
+    public Mono<List<Map<String, Object>>> searchPoi(String keyword) {
         return tmapWebClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/tmap/pois")
                         .queryParam("version", 1)
-                        .queryParam("searchKeyword", keyword) // 사용자가 입력한 글자
-                        .queryParam("count", 10)            // 10개만 가져오기
+                        .queryParam("searchKeyword", keyword)
+                        .queryParam("count", 10)
                         .queryParam("resCoordType", "WGS84GEO")
                         .build())
                 .retrieve()
                 .bodyToMono(TmapPoiResponse.class)
-                .map(res -> res.getSearchPoiInfo().getPois().getPoi());
+                .map(res -> {
+                    if (res.getSearchPoiInfo() == null || res.getSearchPoiInfo().getPois() == null) {
+                        return new ArrayList<>();
+                    }
+
+                    return res.getSearchPoiInfo().getPois().getPoi().stream()
+                            .map(poi -> {
+                                Map<String, Object> map = new HashMap<>();
+                                map.put("name", poi.getName());
+                                map.put("fullAddress", poi.getFullAddress());
+                                map.put("frontLat", poi.getFrontLat());
+                                map.put("frontLon", poi.getFrontLon());
+                                return map;
+                            })
+                            .collect(Collectors.toList());
+                });
     }
 }
