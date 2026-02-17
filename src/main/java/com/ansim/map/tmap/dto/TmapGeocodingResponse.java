@@ -18,17 +18,23 @@ public class TmapGeocodingResponse {
     @Getter
     @NoArgsConstructor
     public static class Coordinate {
-        private String lat;     // 기본 위도
-        private String lon;     // 기본 경도
-        private String newLat;  // 도로명 주소 위도
-        private String newLon;  // 도로명 주소 경도
+        private String lat;
+        private String lon;
+        private String newLat;
+        private String newLon;
 
-        // 실제 경로 탐색에 사용할 위도 추출 (새 주소 우선)
+        // 수동 생성을 위한 생성자 추가
+        public Coordinate(String lat, String lon) {
+            this.lat = lat;
+            this.lon = lon;
+            this.newLat = lat; // 둘 다 동일하게 세팅
+            this.newLon = lon;
+        }
+
         public String getBestLat() {
             return (newLat != null && !newLat.isEmpty()) ? newLat : lat;
         }
 
-        // 실제 경로 탐색에 사용할 경도 추출 (새 주소 우선)
         public String getBestLon() {
             return (newLon != null && !newLon.isEmpty()) ? newLon : lon;
         }

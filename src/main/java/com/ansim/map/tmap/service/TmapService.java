@@ -6,6 +6,7 @@ import com.ansim.map.tmap.dto.TmapPoiDetailResponse;
 import com.ansim.map.tmap.dto.TmapPoiResponse;
 import com.ansim.map.tmap.enums.TmapRouteOption;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class TmapService {
 
     private final WebClient tmapWebClient;
@@ -82,12 +84,32 @@ public class TmapService {
                     return getCarRoutes(
                             start.getBestLon(), start.getBestLat(),
                             end.getBestLon(), end.getBestLat()
-                    );
+                    ).map(routes -> {
+                        // 각 경로 응답 객체에 지오코딩으로 얻은 좌표를 주입
+                        routes.forEach(route -> {
+                            route.setStartLat(start.getBestLat());
+                            route.setStartLon(start.getBestLon());
+                            route.setEndLat(end.getBestLat());
+                            route.setEndLon(end.getBestLon());
+                        });
+                        return routes;
+                    });
                 });
     }
 
     // 지오코딩 단일 요청 메서드
     private Mono<TmapGeocodingResponse.Coordinate> fetchGeocoding(String address) {
+        // 1. 좌표 형식인지 확인 ("경도,위도")
+        if (address.contains(",") && address.split(",").length == 2) {
+            String[] coords = address.split(",");
+            String lon = coords[0].trim();
+            String lat = coords[1].trim();
+
+            // 생성자를 통해 API 호출 없이 바로 반환
+            return Mono.just(new TmapGeocodingResponse.Coordinate(lat, lon));
+        }
+
+        // 2. 좌표 형식이 아니면 기존처럼 API 호출
         return tmapWebClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/tmap/geo/fullAddrGeo")
