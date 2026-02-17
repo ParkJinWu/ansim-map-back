@@ -11,6 +11,12 @@ public class TmapCarRouteResponse {
     private String type; // FeatureCollection
     private List<Feature> features;
 
+    // 최근경로용
+    private String startLat; // 출발 위도
+    private String startLon; // 출발 경도
+    private String endLat;   // 도착 위도
+    private String endLon;   // 도착 경도
+
     @Getter @Setter
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Feature {
@@ -34,6 +40,6 @@ public class TmapCarRouteResponse {
         private int totalFare;     // 총 요금 (원)
         private String name;       // 도로명 또는 지점 명칭
         private String description; // 안내 문구
-        private int taxiFare;      // 예상 택시 요금 (안심맵에 유용!)
+        private int taxiFare;      // 예상 택시 요금
     }
 }
