@@ -13,6 +13,7 @@ public enum ErrorCode {
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "C002", "잘못된 입력값입니다."),
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "C003", "허용되지 않은 메소드입니다."),
     ACCESS_DENIED(HttpStatus.BAD_REQUEST,"C004","해당 요청에 대한 권한이 없습니다."),
+    NOT_FOUND(HttpStatus.NOT_FOUND,"C005","존재하지 않은 데이터입니다."),
 
     // 인증 (AUTH)
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "A001", "인증이 필요합니다."),
