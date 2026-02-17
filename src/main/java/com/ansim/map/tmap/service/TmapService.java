@@ -108,6 +108,7 @@ public class TmapService {
             // 생성자를 통해 API 호출 없이 바로 반환
             return Mono.just(new TmapGeocodingResponse.Coordinate(lat, lon));
         }
+        log.info("[지오코딩 시작] 주소: {}", address);
 
         // 2. 좌표 형식이 아니면 기존처럼 API 호출
         return tmapWebClient.get()
@@ -123,7 +124,13 @@ public class TmapService {
                     if (res.getCoordinateInfo() == null || res.getCoordinateInfo().getCoordinate().isEmpty()) {
                         return Mono.error(new RuntimeException("주소를 찾을 수 없습니다: " + address));
                     }
-                    return Mono.just(res.getCoordinateInfo().getCoordinate().get(0));
+                    TmapGeocodingResponse.Coordinate coord = res.getCoordinateInfo().getCoordinate().get(0);
+
+                    // ✅ 변환 완료 후 로그 (주소 -> 좌표)
+                    log.info("[지오코딩 완료] {} -> 경도(Lon): {}, 위도(Lat): {}",
+                            address, coord.getBestLon(), coord.getBestLat());
+
+                    return Mono.just(coord);
                 });
     }
 
