@@ -1,9 +1,6 @@
 package com.ansim.map.tmap.service;
 
-import com.ansim.map.tmap.dto.TmapCarRouteResponse;
-import com.ansim.map.tmap.dto.TmapGeocodingResponse;
-import com.ansim.map.tmap.dto.TmapPoiDetailResponse;
-import com.ansim.map.tmap.dto.TmapPoiResponse;
+import com.ansim.map.tmap.dto.*;
 import com.ansim.map.tmap.enums.TmapRouteOption;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -94,6 +91,45 @@ public class TmapService {
                         });
                         return routes;
                     });
+                });
+    }
+
+    /**
+     * 보행자 경로 검색 (좌표 기반)
+     */
+    public Mono<TmapPedestrianResponse> getPedestrianRoute(String sx, String sy, String ex, String ey) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("startX", sx);
+        body.put("startY", sy);
+        body.put("endX", ex);
+        body.put("endY", ey);
+        body.put("startName", "출발지");
+        body.put("endName", "목적지");
+        body.put("reqCoordType", "WGS84GEO");
+        body.put("resCoordType", "WGS84GEO");
+        body.put("sort", "index"); // 경로 순서대로 정렬
+
+        return tmapWebClient.post()
+                .uri("/tmap/routes/pedestrian?version=1")
+                .bodyValue(body)
+                .retrieve()
+                .bodyToMono(TmapPedestrianResponse.class)
+                .doOnNext(res -> log.info("[Tmap API] 보행자 경로 수신 완료"));
+    }
+
+    /**
+     * 주소 기반 보행자 경로 검색
+     */
+    public Mono<TmapPedestrianResponse> getPedestrianRouteByAddress(String startAddr, String endAddr) {
+        return Mono.zip(fetchGeocoding(startAddr), fetchGeocoding(endAddr))
+                .flatMap(coords -> {
+                    TmapGeocodingResponse.Coordinate start = coords.getT1();
+                    TmapGeocodingResponse.Coordinate end = coords.getT2();
+
+                    return getPedestrianRoute(
+                            start.getBestLon(), start.getBestLat(),
+                            end.getBestLon(), end.getBestLat()
+                    );
                 });
     }
 

@@ -1,6 +1,7 @@
 package com.ansim.map.tmap.controller;
 
 import com.ansim.map.tmap.dto.TmapCarRouteResponse;
+import com.ansim.map.tmap.dto.TmapPedestrianResponse;
 import com.ansim.map.tmap.dto.TmapPoiDetailResponse;
 import com.ansim.map.tmap.service.TmapService;
 import lombok.AllArgsConstructor;
@@ -29,6 +30,18 @@ public class TmapController {
     ) {
         log.info("[주소 기반 경로 탐색] {} -> {}", startAddr, endAddr);
         return tmapService.getCarRoutesByAddress(startAddr, endAddr);
+    }
+
+    /**
+     * TMAP 보행자 경로 검색
+     */
+    @GetMapping("/path/pedestrian")
+    public Mono<TmapPedestrianResponse> getPedestrianPath(
+            @RequestParam String startAddr,
+            @RequestParam String endAddr
+    ) {
+        log.info("🚶 [보행자 경로 탐색 시작] {} -> {}", startAddr, endAddr);
+        return tmapService.getPedestrianRouteByAddress(startAddr, endAddr);
     }
 
     /**
